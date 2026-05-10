@@ -1,0 +1,20 @@
+C:\Users\aditi\OneDrive\Projects\DataScience_Model>python important.py
+total_files_burned             0.280092     Total number of files written to external media (USB/CD etc.)
+total_printed_pages            0.125078     Excessive printing may indicate unauthorized data extraction.
+employee_seniority_years       0.080015     Experience of employee in organization
+Why important:
+
+Senior employees:
+Have more access
+Know system weaknesses
+
+Access level and familiarity with systems influence insider threat likelihood.
+
+num_printed_pages_off_hours    0.051323     Printing done during non-working hours
+num_entries                    0.044623     Number of times user accessed system Abnormal access frequency indicates unusual system usage patterns.
+num_unique_campus              0.043803     Number of different locations accessed
+burned_from_other              0.040262     Files burned from external/other sources
+employee_classification        0.026782     Job role influences exposure to sensitive data.
+employee_campus_Campus C       0.016926
+employee_campus_Campus B       0.013448
+dtype: float64

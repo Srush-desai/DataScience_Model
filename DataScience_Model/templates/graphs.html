@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graphs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<h1>Graphs</h1>
+
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/graphs">Graphs</a>
+    <a href="/predict">Predict</a>
+</div>
+
+<form method="POST">
+    <select name="graph">
+        <option value="threat">Threat Trend</option>
+        <option value="activity">Activity Distribution</option>
+        <option value="anomaly">Anomaly vs Threat</option>
+    </select>
+
+    <button type="submit">Show Graph</button>
+</form>
+
+<img src="{{ url_for('static', filename='graph.png') }}">
+
+</body>
+</html>

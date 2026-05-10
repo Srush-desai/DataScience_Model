@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataScience Control Center</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-active-tab="{{ active_tab }}">
+    <div class="page-shell">
+        <header class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">DataScience </p>
+                <h1>Insider Threat Detection & Behavioral Risk Analytics System</h1>
+                
+                <div class="hero-actions">
+                    <a class="primary-btn" href="/?active_tab=dataset-explorer">View Dataset</a>
+                    <a class="secondary-btn" href="{{ power_bi_url }}">Open Power BI</a>
+                </div>
+            </div>
+            <div class="hero-grid">
+                <div class="metric-card warm">
+                    <span>Rows</span>
+                    <strong>{{ overview.rows }}</strong>
+                </div>
+                <div class="metric-card gold">
+                    <span>Columns</span>
+                    <strong>{{ overview.columns }}</strong>
+                </div>
+                <div class="metric-card teal">
+                    <span>Avg Threat Score</span>
+                    <strong>{{ overview.avg_threat }}</strong>
+                </div>
+                <div class="metric-card ember">
+                    <span>Malicious Rate</span>
+                    <strong>{{ overview.malicious_rate }}%</strong>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tab-strip">
+            <a class="tab-link {% if active_tab == 'landing' %}active{% endif %}" href="/?active_tab=landing">Landing</a>
+            <a class="tab-link {% if active_tab == 'dataset-explorer' %}active{% endif %}" href="/?active_tab=dataset-explorer">Dataset Explorer</a>
+            <a class="tab-link {% if active_tab == 'eda' %}active{% endif %}" href="/?active_tab=eda">EDA</a>
+            <a class="tab-link {% if active_tab == 'hypothesis-testing' %}active{% endif %}" href="/?active_tab=hypothesis-testing">Hypothesis Testing</a>
+            <a class="tab-link {% if active_tab == 'prediction' %}active{% endif %}" href="/?active_tab=prediction">Prediction</a>
+            <a class="tab-link {% if active_tab == 'time-forecasting' %}active{% endif %}" href="/?active_tab=time-forecasting">Time Forecasting</a>
+        </nav>
+
+        <main class="dashboard">
+            <section class="panel {% if active_tab == 'landing' %}active-panel{% endif %}" id="landing">
+                <div class="panel-head">
+                    <div>
+                        <p class="section-tag">Landing Page</p>
+                        <h2>Start from the dataset or jump directly into Power BI.</h2>
+                    </div>
+                </div>
+                <div class="landing-layout">
+                    <div class="glass-card">
+                        <h3>Connected Workflow</h3>
+                        <p>Choose One of the options</p>
+                        <div class="action-row">
+                            <a class="primary-btn" href="/?active_tab=dataset-explorer">View Dataset</a>
+                            <a class="secondary-btn" href="{{ power_bi_url }}">Open Power BI</a>
+                        </div>
+                        <p class="hero-text">Conclusion: Use Dataset Explorer → EDA → Hypothesis Testing to understand the data, then use Prediction to score new users.</p>
+                    </div>
+                    <div class="glass-card">
+                        <h3>What You Can Do Here</h3>
+                        <ul class="feature-list">
+                            <li>Explore selected dataset features in a table.</li>
+                            <li>Run cleaning steps and view the cleaned dataset instantly.</li>
+                            <li>Switch between univariate, bivariate, multivariate, and insights analysis.</li>
+                            <li>Open hypothesis tests, prediction metrics, and forecasting results from linked buttons.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel {% if active_tab == 'dataset-explorer' %}active-panel{% endif %}" id="dataset-explorer">
+                <div class="panel-head">
+                    <div>
+                        <p class="section-tag">Dataset Explorer</p>
+                        <h2>Select features and control the next step in the pipeline.</h2>
+                    </div>
+                    <span class="status-pill">{{ dataset_mode|title }} Dataset</span>
+                </div>
+                <div class="glass-card" style="margin-bottom: 18px;">
+                    <h3>What this tab shows</h3>
+                    <ul class="feature-list">
+                        <li>A preview table of selected numeric features from the dataset.</li>
+                        <li>Basic cleaning info (missing values + duplicates) applied on load.</li>
+                    </ul>
+                    <p>Conclusion: After confirming the dataset looks correct, move to EDA for patterns and Hypothesis Testing for statistical evidence.</p>
+                </div>
+
+                <form class="control-card" method="GET" action="/">
+                    <input type="hidden" name="active_tab" value="dataset-explorer">
+                    <input type="hidden" name="dataset_mode" value="{{ dataset_mode }}">
+                    <label for="selected_columns">Choose dataset features to display</label>
+                    <select id="selected_columns" name="selected_columns" multiple size="10">
+                        {% for column in available_columns %}
+                            <option value="{{ column }}" {% if column in selected_columns %}selected{% endif %}>{{ column }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="action-row">
+                        <button class="ghost-btn" type="submit" name="dataset_action" value="view">Apply Selection</button>
+                        <button class="ghost-btn" type="submit" name="dataset_action" value="reset">Reset Filter</button>
+                        <button class="primary-btn" type="submit" name="dataset_action" value="clean">Clean Data</button>
+                        <a class="secondary-btn" href="{{ power_bi_url }}">Open Power BI</a>
+                    </div>
+                </form>
+
+                {% if dataset_mode == 'cleaned' %}
+                    <div class="grid-two">
+                        <div class="info-card">
+                            <h3>Data Cleaning Process</h3>
+                            <div class="step-list">
+                                {% for step in cleaning.steps %}
+                                    <div class="step-card">
+                                        <strong>{{ step.title }}</strong>
+                                        <p>{{ step.detail }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <h3>Cleaning Summary</h3>
+                            <div class="mini-stats">
+                                <div>
+                                    <span>Missing Before</span>
+                                    <strong>{{ cleaning.missing_before }}</strong>
+                                </div>
+                                <div>
+                                    <span>Missing After</span>
+                                    <strong>{{ cleaning.missing_after }}</strong>
+                                </div>
+                                <div>
+                                    <span>Duplicates Before</span>
+                                    <strong>{{ cleaning.duplicates_before }}</strong>
+                                </div>
+                                <div>
+                                    <span>Duplicates After</span>
+                                    <strong>{{ cleaning.duplicates_after }}</strong>
+                                </div>
+                            </div>
+                            <div class="action-row">
+                                <a class="ghost-btn" href="/?active_tab=dataset-explorer&dataset_mode=cleaned&dataset_action=clean">Clean Data Again</a>
+                                <a class="primary-btn" href="/?active_tab=eda">EDA</a>
+                                <a class="secondary-btn" href="{{ power_bi_url }}">Open BI</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="table-card">
+                    <div class="table-head">
+                        <h3>{% if dataset_mode == 'cleaned' %}Clean Dataset Preview{% else %}Dataset Preview{% endif %}</h3>
+                        <span>Showing {{ dataset_preview|length }} sample rows</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    {% for header in dataset_headers %}
+                                        <th>{{ header }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in dataset_preview %}
+                                    <tr>
+                                        {% for header in dataset_headers %}
+                                            <td>{{ row[header] }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel {% if active_tab == 'eda' %}active-panel{% endif %}" id="eda">
+                <div class="panel-head">
+                    <div>
+                        <p class="section-tag">EDA</p>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <a class="ghost-btn {% if eda_focus == 'univariate' %}selected{% endif %}" href="/?active_tab=eda&eda_focus=univariate">Univariate Analysis</a>
+                    <a class="ghost-btn {% if eda_focus == 'bivariate' %}selected{% endif %}" href="/?active_tab=eda&eda_focus=bivariate">Bivariate Analysis</a>
+                    <a class="ghost-btn {% if eda_focus == 'multivariate' %}selected{% endif %}" href="/?active_tab=eda&eda_focus=multivariate">Multivariate Analysis</a>
+                    <a class="ghost-btn {% if eda_focus == 'insights' %}selected{% endif %}" href="/?active_tab=eda&eda_focus=insights">Insights</a>
+                </div>
+
+                <div class="analysis-card">
+                    <div class="analysis-copy">
+                        <h3>{{ eda_view.title }}</h3>
+                        <p>{{ eda_view.description }}</p>
+                        {% if eda_focus == 'univariate' %}
+                            <p>This graph shows how one feature is distributed (typical values, spread, skew).</p>
+                        {% elif eda_focus == 'bivariate' %}
+                            <p>This graph shows how two features move together; colors indicate the target class when available.</p>
+                        {% elif eda_focus == 'multivariate' %}
+                            <p>This heatmap shows correlation between multiple numeric features (closer to 1/-1 = stronger linear relationship).</p>
+                        {% else %}
+                            <p>This chart highlights the strongest signals by absolute correlation with the malicious label.</p>
+                        {% endif %}
+                        {% if eda_view.insights %}
+                            <ul class="feature-list">
+                                {% for insight in eda_view.insights %}
+                                    <li>{{ insight }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <p>Conclusion: Use EDA to pick features that separate malicious vs normal behavior before running statistical tests.</p>
+                    </div>
+                    <!-- <img class="chart-frame" src="data:image/png;base64,{{ eda_view.plot }}" alt="EDA chart"> -->
+                     {{ eda_view.plot | safe }}
+                </div>
+
+                <div class="control-card">
+                    <div class="panel-head compact">
+                        <div>
+                            <p class="section-tag">Statistical Summary</p>
+                            <h3>Choose summary filters and render charts/results.</h3>
+                        </div>
+                    </div>
+                    <form method="GET" action="/">
+                        <input type="hidden" name="active_tab" value="eda">
+                        <input type="hidden" name="eda_focus" value="{{ eda_focus }}">
+                        <label for="summary_columns">Summary filters</label>
+                        <select id="summary_columns" name="summary_columns" multiple size="8">
+                            {% for column in numeric_columns %}
+                                <option value="{{ column }}" {% if column in summary_columns %}selected{% endif %}>{{ column }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="action-row">
+                            <button class="primary-btn" type="submit" name="show_summary" value="1">Show Summary</button>
+                            <a class="secondary-btn" href="{{ power_bi_url }}">Open Power BI</a>
+                        </div>
+                    </form>
+
+                    {% if show_summary and eda_view.summary_table %}
+                        <div class="grid-two">
+                            <div class="table-card inner">
+                                <div class="table-head">
+                                    <h3>Summary Result</h3>
+                                </div>
+                                <div class="table-wrap">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                {% for header in eda_view.summary_headers %}
+                                                    <th>{{ header }}</th>
+                                                {% endfor %}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in eda_view.summary_table %}
+                                                <tr>
+                                                    {% for header in eda_view.summary_headers %}
+                                                        <td>{{ row[header] }}</td>
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="info-card">
+                                <h3>Connected Actions</h3>
+                                <div class="action-stack">
+                                    <a class="primary-btn" href="/?active_tab=prediction">Prediction</a>
+                                    <a class="ghost-btn" href="/?active_tab=hypothesis-testing">Testing</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid-two charts-grid">
+                            {% if eda_view.summary_graph_html %}
+                                <div class="chart-frame">{{ eda_view.summary_graph_html | safe }}</div>
+                            {% elif eda_view.summary_graph %}
+                                <img class="chart-frame" src="data:image/png;base64,{{ eda_view.summary_graph }}" alt="Summary graph">
+                            {% endif %}
+
+                            {% if eda_view.summary_plot_html %}
+                                <div class="chart-frame">{{ eda_view.summary_plot_html | safe }}</div>
+                            {% elif eda_view.summary_plot %}
+                                <img class="chart-frame" src="data:image/png;base64,{{ eda_view.summary_plot }}" alt="Summary correlation graph">
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="panel {% if active_tab == 'hypothesis-testing' %}active-panel{% endif %}" id="hypothesis-testing">
+                <div class="panel-head">
+                    <div>
+                        <p class="section-tag">Hypothesis Testing</p>
+                        <h2>Run T-test, Chi-test, and ANOVA with related visuals and outlier details.</h2>
+                    </div>
+                </div>
+                <div class="glass-card" style="margin-bottom: 18px;">
+                        <h3>How to read the results</h3>
+                        <ul class="feature-list">
+                            <li><strong>p-value</strong>: If p &lt; 0.05, we reject H0 (evidence of difference/association).</li>
+                            <li><strong>T-test</strong>: compares mean of a numeric metric between two groups (malicious vs normal).</li>
+                            <li><strong>ANOVA</strong>: tests whether group means differ across 3+ categories, using variance (F-statistic = between-group variance / within-group variance).</li>
+                            <li><strong>Chi-square</strong>: checks association between two categorical variables.</li>
+                            <li><strong>Outliers</strong>: unusual values using IQR bounds; count helps spot extreme behavior.</li>
+                        </ul>
+                    <p>Conclusion: If we reject H0, the selected factor is statistically linked to behavior differences and can be a useful signal.</p>
+                </div>
+
+                <div class="action-row">
+                    <a class="ghost-btn {% if hypothesis_test == 't_test' %}selected{% endif %}" href="/?active_tab=hypothesis-testing&hypothesis_test=t_test">T-Test</a>
+                    <a class="ghost-btn {% if hypothesis_test == 'chi_square' %}selected{% endif %}" href="/?active_tab=hypothesis-testing&hypothesis_test=chi_square">Chi-Test</a>
+                    <a class="ghost-btn {% if hypothesis_test == 'anova' %}selected{% endif %}" href="/?active_tab=hypothesis-testing&hypothesis_test=anova">ANOVA</a>
+                </div>
+
+                <div class="analysis-card">
+                    {% if hypothesis_view.plot_html %}
+                        {{ hypothesis_view.plot_html | safe }}
+                    {% elif hypothesis_view.plot %}
+                        <img class="chart-frame" src="data:image/png;base64,{{ hypothesis_view.plot }}" alt="Hypothesis chart">
+                    {% endif %}
+                    <div class="analysis-copy">
+                        <h3>{{ hypothesis_view.title }}</h3>
+                        <p>{{ hypothesis_view.description }}</p>
+                        {% if hypothesis_view.result %}
+                            <p class="result-copy">{{ hypothesis_view.result }}</p>
+                        {% endif %}
+                        <div class="outlier-box">
+                            <span>Outliers Detected</span>
+                            <!-- <strong>{{ hypothesis_view.outliers.count }}</strong> -->
+                             <strong>{{ hypothesis_view.outliers.count if hypothesis_view.outliers else 0 }}</strong>
+                            {% if hypothesis_view.outliers.bounds %}
+                                <p>IQR bounds: {{ hypothesis_view.outliers.bounds[0] }} to {{ hypothesis_view.outliers.bounds[1] }}</p>
+                            {% endif %}
+                            {% if hypothesis_view.outliers.examples %}
+                                <p>Examples: {{ hypothesis_view.outliers.examples|join(', ') }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <a class="primary-btn" href="/?active_tab=prediction">Prediction</a>
+                    <a class="secondary-btn" href="/?active_tab=time-forecasting">Time Forecasting</a>
+                </div>
+            </section>
+
+            <section class="panel {% if active_tab == 'prediction' %}active-panel{% endif %}" id="prediction">
+                <div class="panel-head">
+                    <div>
+                        <p class="section-tag">Prediction</p>
+                        <h2>Enter values, predict outcomes, and review model metrics.</h2>
+                    </div>
+                </div>
+                <div class="glass-card" style="margin-bottom: 18px;">
+                    <h3>What this tab does</h3>
+                    <ul class="feature-list">
+                        <li>Uses the trained model to predict <strong>Normal</strong> vs <strong>Malicious</strong> based on the input features.</li>
+                        <li>Shows model quality metrics (Accuracy/Precision/Recall/F1) and a confusion matrix.</li>
+                    </ul>
+                    <p>Conclusion: Use this to score a new employee/session and review whether the model is performing reliably.</p>
+                </div>
+
+                <div class="grid-two">
+                    <form class="control-card" method="POST" action="/">
+                        <input type="hidden" name="active_tab" value="prediction">
+                        <input type="hidden" name="form_name" value="prediction">
+                        <div class="form-grid">
+                            {% for field in prediction_fields %}
+                                <label>
+                                    <span>{{ field.replace('_', ' ').title() }}</span>
+                                    <input
+                                        type="number"
+                                        name="{{ field }}"
+                                        step="any"
+                                        value="{% if prediction_result %}{{ prediction_result.inputs[field] }}{% else %}{{ prediction_defaults[field] }}{% endif %}">
+                                </label>
+                            {% endfor %}
+                        </div>
+                        <div class="action-row">
+                            <button class="primary-btn" type="submit">Predict Outcome</button>
+                            <a class="ghost-btn" href="/?active_tab=time-forecasting">Time Forecasting</a>
+                        </div>
+                    </form>
+
+                    <div class="info-card">
+                        <h3>Prediction Output</h3>
+                        {% if prediction_result %}
+                            <div class="prediction-result">
+                                <strong>{{ prediction_result.outcome }}</strong>
+                                <p>{{ prediction_result.explanation }}</p>
+                            </div>
+                        {% else %}
+                            <p>Enter the feature values and click predict to generate the outcome explanation.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="grid-two">
+                    <div class="info-card">
+                        <h3>Model Metrics</h3>
+                        {% if model_metrics.available %}
+                            <div class="mini-stats">
+                                <div>
+                                    <span>Accuracy</span>
+                                    <strong>{{ model_metrics.accuracy }}</strong>
+                                </div>
+                                <div>
+                                    <span>Precision</span>
+                                    <strong>{{ model_metrics.precision }}</strong>
+                                </div>
+                                <div>
+                                    <span>Recall</span>
+                                    <strong>{{ model_metrics.recall }}</strong>
+                                </div>
+                                <div>
+                                    <span>F1 Score</span>
+                                    <strong>{{ model_metrics.f1_score }}</strong>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p>{{ model_metrics.message }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="info-card">
+                        <h3>Confusion Matrix</h3>
+                        {% if model_metrics.available %}
+                            {% if model_metrics.plot_html %}
+                                {{ model_metrics.plot_html | safe }}
+                            {% else %}
+                                <img class="chart-frame" src="data:image/png;base64,{{ model_metrics.plot }}" alt="Confusion matrix">
+                            {% endif %}
+                        {% else %}
+                            <p>Confusion matrix is unavailable.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel {% if active_tab == 'time-forecasting' %}active-panel{% endif %}" id="time-forecasting">
+                <div class="panel-head">
+                    <div>
+                        <p class="section-tag">Time Forecasting</p>
+                        <h2>Trend, seasonality, Moving Average, ARIMA, and performance comparison.</h2>
+                    </div>
+                </div>
+                <div class="glass-card" style="margin-bottom: 18px;">
+                    <h3>What the graphs mean</h3>
+                    <ul class="feature-list">
+                        <li><strong>Trend plot</strong>: average signal per day (`trip_day_number`) plus a rolling mean to show the overall direction.</li>
+                        <li><strong>Forecast plot</strong>: compares actual vs predicted values on the test split.</li>
+                        <li><strong>RMSE/MAE</strong>: forecast error (lower = better).</li>
+                    </ul>
+                    <p>Conclusion: The conclusion line tells which method performed better on the test split (lower RMSE).</p>
+                </div>
+
+                {% if forecasting.available %}
+                    <div class="mini-stats wide">
+                        <div>
+                            <span>Series Points</span>
+                            <strong>{{ forecasting.series_points }}</strong>
+                        </div>
+                        <div>
+                            <span>Train Size</span>
+                            <strong>{{ forecasting.train_size }}</strong>
+                        </div>
+                        <div>
+                            <span>Test Size</span>
+                            <strong>{{ forecasting.test_size }}</strong>
+                        </div>
+                        <div>
+                            <span>MA Window</span>
+                            <strong>{{ forecasting.window }}</strong>
+                        </div>
+                        <div>
+                            <span>MAE (MA)</span>
+                            <strong>{{ forecasting.mae_ma }}</strong>
+                        </div>
+                        <div>
+                            <span>RMSE (MA)</span>
+                            <strong>{{ forecasting.rmse_ma }}</strong>
+                        </div>
+                        <div>
+                            <span>MAE (ARIMA)</span>
+                            <strong>{{ forecasting.mae_arima if forecasting.mae_arima is not none else 'N/A' }}</strong>
+                        </div>
+                        <div>
+                            <span>RMSE (ARIMA)</span>
+                            <strong>{{ forecasting.rmse_arima if forecasting.rmse_arima is not none else 'N/A' }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="grid-two charts-grid">
+                        {% if forecasting.trend_plot_html %}
+                            {{ forecasting.trend_plot_html | safe }}
+                        {% else %}
+                            <img class="chart-frame" src="data:image/png;base64,{{ forecasting.trend_plot }}" alt="Trend and seasonality chart">
+                        {% endif %}
+
+                        {% if forecasting.forecast_plot_html %}
+                            {{ forecasting.forecast_plot_html | safe }}
+                        {% else %}
+                            <img class="chart-frame" src="data:image/png;base64,{{ forecasting.forecast_plot }}" alt="Forecast comparison chart">
+                        {% endif %}
+                    </div>
+
+                    <div class="info-card">
+                        <h3>Conclusion</h3>
+                        <p>{{ forecasting.conclusion }}</p>
+                    </div>
+                {% else %}
+                    <div class="info-card">
+                        <h3>Forecasting Status</h3>
+                        <p>{{ forecasting.message }}</p>
+                    </div>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
