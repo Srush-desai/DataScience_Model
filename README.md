@@ -1,81 +1,503 @@
-Insider Threat Detection (Flask + EDA + Testing + Forecasting)
-Project overview (what this is)
-Insider threats are risky actions performed by people who already have access to an organization (employees/contractors). Examples include unusual off-hours activity, abnormal movement/access patterns, and policy violations that may indicate malicious intent.
+# Insider Threat Detection (Flask + EDA + Testing + Forecasting)
 
-This project provides a single, easy-to-use web dashboard that helps non-technical users:
+## 1. Project Overview
 
-Understand the dataset through EDA (univariate, bivariate, multivariate, and insights)
-Validate relationships statistically using hypothesis tests (T-test, Chi-square, ANOVA)
-View simple time-based behavior trends and forecasts (Moving Average vs ARIMA)
-Predict whether a case looks Normal or Malicious / High Risk using a trained ML model
-In short: it turns a raw behavior dataset into visual explanations + statistical evidence + a model prediction in one place.
+* Insider threats are risky activities performed by authorized users such as employees or contractors.
+* Examples:
 
-What problem it solves (why it’s useful)
-For analysts: quickly identify which features look suspicious and which are statistically meaningful.
-For managers/non-technical users: see a clear conclusion (reject/fail-to-reject H0, outlier counts, and forecasting performance) without reading code.
-For demos/projects: show the full pipeline (data → EDA → tests → forecasting → prediction) via a UI.
-Quickstart (Windows / PowerShell)
-From the repository root:
+  * Unusual off-hours access
+  * Suspicious movement patterns
+  * Policy violations
+  * Abnormal activity behavior
+* This project provides a web-based dashboard for analyzing insider threat behavior using:
 
+  * EDA (Exploratory Data Analysis)
+  * Statistical Testing
+  * Forecasting
+  * Machine Learning Prediction
+
+---
+
+# 2. Purpose of the Project
+
+The project converts raw organizational behavior data into:
+
+* Visual analysis
+* Statistical evidence
+* Forecasting insights
+* ML-based risk prediction
+
+All integrated into a single Flask dashboard.
+
+---
+
+# 3. Problems Solved
+
+## For Analysts
+
+* Detect suspicious features quickly
+* Identify statistically significant patterns
+* Analyze abnormal behavior visually
+
+## For Managers / Non-Technical Users
+
+* Easy interpretation of results
+* Clear conclusions:
+
+  * Reject H0
+  * Fail to Reject H0
+  * Outlier detection
+  * Forecast comparison
+
+## For Academic Projects / Demos
+
+Demonstrates the complete Data Science pipeline:
+
+Data Collection → EDA → Statistical Testing → Forecasting → ML Prediction → Dashboard UI
+
+---
+
+# 4. Technologies Used
+
+* Python
+* Flask
+* Pandas
+* NumPy
+* Matplotlib
+* Seaborn
+* Scikit-learn
+* Statsmodels (ARIMA)
+* HTML/CSS
+
+---
+
+# 5. Quickstart Setup (Windows / PowerShell)
+
+## Create Virtual Environment
+
+```powershell
 python -m venv .venv
+```
+
+## Activate Environment
+
+```powershell
 .\.venv\Scripts\Activate.ps1
+```
+
+## Upgrade pip
+
+```powershell
 python -m pip install --upgrade pip
+```
+
+## Install Dependencies
+
+```powershell
 python -m pip install -r requirements.txt
+```
+
+## Run Flask Application
+
+```powershell
 python .\DataScience_Model\app.py
-Open: http://127.0.0.1:5000/
+```
 
-Health check: http://127.0.0.1:5000/health
+---
 
-Project structure
-DataScience_Model/app.py — Main Flask app (UI + EDA + tests + forecasting + prediction)
-DataScience_Model/templates/index.html — UI template
-DataScience_Model/static/style.css — UI styling
-DataScience_Model/model.pkl — Trained model used by the Prediction tab
-DataScience_Model/feature_engineered_balanced.csv — Dataset used by the app
-Tabs (what each one does)
-Landing
-What it shows: quick entry points to dataset exploration and analysis tabs.
-Conclusion: start with Dataset Explorer → EDA → Hypothesis Testing, then use Prediction to score new inputs.
-Dataset Explorer
-What it shows: dataset preview table + cleaning summary (missing values and duplicates).
-Notes: if the dataset contains duplicate column names, the app auto-renames duplicates internally (example: col → col__2) so plots work.
-Conclusion: confirm the dataset looks correct before analyzing patterns.
-EDA (Univariate / Bivariate / Multivariate / Insights)
-Univariate: distribution of one numeric feature (typical values, spread, skew).
-Bivariate: relationship between two numeric features (colored by is_malicious when available).
-Multivariate: correlation heatmap (how multiple numeric features move together).
-Insights: strongest signals by absolute correlation with is_malicious + short bullets for quick understanding.
-Conclusion: use EDA to identify the features that best separate malicious vs normal behavior.
-Hypothesis Testing (T-test / Chi-square / ANOVA)
-p-value: probability of seeing the result (or more extreme) if the null hypothesis (H0) were true.
-We use α = 0.05:
-If p < 0.05 → Reject H0 (evidence of a difference/association)
-If p ≥ 0.05 → Fail to reject H0 (not enough evidence)
-T-test (Welch): compares the mean of a numeric metric between 2 groups (Normal vs Malicious).
-ANOVA: tests whether mean values differ across 3+ categories. It uses variance decomposition (F-statistic = between-group variance / within-group variance) to detect mean differences.
-Chi-square: tests association between 2 categorical variables.
-Outliers detected: counts outliers using the IQR rule and shows bounds + a few example values.
-Conclusion: rejected H0 suggests a feature is statistically linked to behavior differences (useful signal).
-Prediction
-What it does: uses the trained model (model.pkl) to predict Normal vs Malicious from user inputs.
-What the graphs mean: confusion matrix shows correct/incorrect predictions by class.
-Conclusion: use this tab to score a new case and sanity-check model quality (Accuracy/Precision/Recall/F1).
-Time Forecasting
-What it does: builds a time series by grouping by trip_day_number and forecasting the mean of a target signal (prefers threat_score).
-Methods: Moving Average baseline + ARIMA (if available).
-Metrics: MAE/RMSE (lower is better). The conclusion tells which method performed better on the test split.
-Conclusion: this gives a simple trend + short-horizon forecasting comparison for the selected signal.
-Train / Re-train the model (optional)
-Core features only (recommended for the demo UI):
+# 6. Open the Application
 
+## Main Dashboard
+
+```text
+http://127.0.0.1:5000/
+```
+
+## Health Check
+
+```text
+http://127.0.0.1:5000/health
+```
+
+---
+
+# 7. Project Structure
+
+## Main Files
+
+* `DataScience_Model/app.py`
+
+  * Main Flask application
+  * Handles UI, EDA, testing, forecasting, prediction
+
+* `DataScience_Model/templates/index.html`
+
+  * Frontend HTML template
+
+* `DataScience_Model/static/style.css`
+
+  * Styling for dashboard
+
+* `DataScience_Model/model.pkl`
+
+  * Trained ML model
+
+* `DataScience_Model/feature_engineered_balanced.csv`
+
+  * Dataset used for analysis
+
+---
+
+# 8. Dashboard Tabs and Functionality
+
+# A. Landing Page
+
+## Purpose
+
+* Provides navigation to all analysis modules
+
+## Conclusion
+
+Recommended workflow:
+
+1. Dataset Explorer
+2. EDA
+3. Hypothesis Testing
+4. Prediction
+
+---
+
+# B. Dataset Explorer
+
+## Features
+
+* Dataset preview table
+* Missing value summary
+* Duplicate value summary
+
+## Special Handling
+
+* Automatically renames duplicate columns
+* Example:
+
+```text
+employee_years → employee_years__2
+```
+
+## Conclusion
+
+Ensures dataset quality before analysis.
+
+---
+
+# C. EDA (Exploratory Data Analysis)
+
+## 1. Univariate Analysis
+
+### Purpose
+
+* Analyze a single feature
+
+### Shows
+
+* Distribution
+* Spread
+* Skewness
+* Typical values
+
+---
+
+## 2. Bivariate Analysis
+
+### Purpose
+
+* Relationship between two variables
+
+### Visualization
+
+* Scatter plots
+* Colored by:
+
+```text
+is_malicious
+```
+
+---
+
+## 3. Multivariate Analysis
+
+### Purpose
+
+* Study relationships among multiple variables
+
+### Visualization
+
+* Correlation Heatmap
+
+---
+
+## 4. Insights Section
+
+### Displays
+
+* Strongest correlations with:
+
+```text
+is_malicious
+```
+
+### Conclusion
+
+Identifies features that strongly indicate malicious behavior.
+
+---
+
+# D. Hypothesis Testing
+
+## Purpose
+
+Validate statistical significance of relationships.
+
+---
+
+## p-value Concept
+
+* Probability of obtaining results assuming H0 is true.
+
+### Significance Level
+
+```text
+α = 0.05
+```
+
+### Decision Rules
+
+* If:
+
+```text
+p < 0.05
+```
+
+→ Reject H0
+
+* If:
+
+```text
+p ≥ 0.05
+```
+
+→ Fail to Reject H0
+
+---
+
+## 1. T-Test (Welch’s T-Test)
+
+### Purpose
+
+Compares means between:
+
+* Normal users
+* Malicious users
+
+### Conclusion
+
+Determines whether a feature differs significantly between groups.
+
+---
+
+## 2. ANOVA
+
+### Purpose
+
+Compares mean differences across 3+ groups.
+
+### Uses
+
+* Variance decomposition
+* F-statistic
+
+### Formula
+
+```text
+F = Between-group variance / Within-group variance
+```
+
+### Conclusion
+
+Checks whether multiple categories behave differently.
+
+---
+
+## 3. Chi-Square Test
+
+### Purpose
+
+Checks association between:
+
+* Two categorical variables
+
+### Conclusion
+
+Determines dependency between categorical behaviors.
+
+---
+
+## 4. Outlier Detection
+
+### Method
+
+* IQR (Interquartile Range)
+
+### Displays
+
+* Lower bound
+* Upper bound
+* Number of outliers
+* Sample outlier values
+
+### Conclusion
+
+Detects unusual behavior points.
+
+---
+
+# E. Prediction Module
+
+## Purpose
+
+Predicts:
+
+```text
+Normal OR Malicious
+```
+
+using the trained ML model.
+
+---
+
+## Model File
+
+```text
+model.pkl
+```
+
+---
+
+## Visualizations
+
+### Confusion Matrix
+
+Shows:
+
+* Correct predictions
+* Incorrect predictions
+
+---
+
+## Metrics
+
+* Accuracy
+* Precision
+* Recall
+* F1-Score
+
+---
+
+## Conclusion
+
+Used to:
+
+* Score new behavior data
+* Validate model quality
+
+---
+
+# F. Time Forecasting
+
+## Purpose
+
+Forecasts behavior trends over time.
+
+---
+
+## Time Series Basis
+
+Grouped using:
+
+```text
+trip_day_number
+```
+
+---
+
+## Preferred Signal
+
+```text
+threat_score
+```
+
+---
+
+## Forecasting Methods
+
+### 1. Moving Average
+
+* Simple baseline forecasting
+
+### 2. ARIMA
+
+* Advanced time series forecasting
+
+---
+
+## Evaluation Metrics
+
+* MAE (Mean Absolute Error)
+* RMSE (Root Mean Squared Error)
+
+### Interpretation
+
+Lower values indicate better forecasting performance.
+
+---
+
+## Conclusion
+
+Compares forecasting methods and identifies better trend prediction.
+
+---
+
+# 9. Train / Retrain the Model
+
+## Recommended Core Features
+
+```powershell
 python .\DataScience_Model\train_model.py
-All features:
+```
 
+---
+
+## Train Using All Features
+
+```powershell
 python .\DataScience_Model\train_model.py --all-features
-Predict without the UI
-CLI
+```
+
+---
+
+# 10. Predict Without UI
+
+# A. CLI Prediction
+
+```powershell
 python .\DataScience_Model\predict.py --json "{\"total_activity\": 12, \"off_hours_ratio\": 0.4, \"burn_ratio\": 0.1, \"movement_anomaly\": 0.2, \"employee_risk\": 0.7, \"activity_per_entry\": 3.0}"
-API
+```
+
+---
+
+# B. API Prediction
+
+```powershell
 $body = @{
   total_activity = 12
   off_hours_ratio = 0.4
@@ -85,12 +507,90 @@ $body = @{
   activity_per_entry = 3.0
 } | ConvertTo-Json
 
-Invoke-RestMethod -Method Post -Uri http://127.0.0.1:5000/api/predict -ContentType "application/json" -Body $body
-Troubleshooting
-If a plot shows as unavailable, check the terminal logs and ensure dependencies are installed:
+Invoke-RestMethod -Method Post `
+  -Uri http://127.0.0.1:5000/api/predict `
+  -ContentType "application/json" `
+  -Body $body
+```
+
+---
+
+# 11. Troubleshooting
+
+## Plot Not Showing
+
+Run:
+
+```powershell
 python -m pip install -r requirements.txt
-If ARIMA is unavailable, confirm statsmodels is installed (it is listed in requirements.txt).
-Dataset notes (for new users)
-The app reads: DataScience_Model/feature_engineered_balanced.csv
-The prediction target label is: is_malicious (0 = Normal, 1 = Malicious)
-Some datasets may contain duplicate column names (example: employee_seniority_years twice). The app automatically renames duplicates internally (employee_seniority_years__2) so plots and correlations work correctly.
+```
+
+---
+
+## ARIMA Not Working
+
+Ensure:
+
+```text
+statsmodels
+```
+
+is installed.
+
+---
+
+# 12. Dataset Information
+
+## Dataset File
+
+```text
+DataScience_Model/feature_engineered_balanced.csv
+```
+
+---
+
+## Target Label
+
+```text
+is_malicious
+```
+
+### Label Meaning
+
+* `0` → Normal
+* `1` → Malicious
+
+---
+
+## Duplicate Column Handling
+
+Example:
+
+```text
+employee_seniority_years
+employee_seniority_years__2
+```
+
+The application automatically renames duplicate columns internally.
+
+---
+
+# 13. Final Conclusion
+
+This project demonstrates a complete Insider Threat Detection system using:
+
+* Flask Web Dashboard
+* Exploratory Data Analysis
+* Statistical Hypothesis Testing
+* Time Series Forecasting
+* Machine Learning Classification
+
+The system helps organizations:
+
+* Detect suspicious employee behavior
+* Understand statistical relationships
+* Forecast threat trends
+* Predict malicious activity using AI models
+
+All through a simple and interactive web interface.
+<img width="1896" height="935" alt="Screenshot 2026-05-11 022806" src="https://github.com/user-attachments/assets/cfc47343-1280-42a6-8df3-277f6b3f0d76" />
